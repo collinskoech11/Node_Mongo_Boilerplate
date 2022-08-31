@@ -1,0 +1,15 @@
+<%- include("./partials/header.ejs") %>
+<div class="container mt-5" >
+    <form action="/add/todo" class="d-flex" method="post">
+        <input type="text" name="todo" class="form-control" placeholder="Enter Todo"/>
+        <input type="submit" value="submit" class="btn btn-lg btn-primary mx-4">
+    </form>
+    <ul class="list-group my-5">
+        <% todo.forEach(todos => { %>
+            <li class="list-group-item d-flex"><%= todos.todo %> <a href="/delete/todo/<%= todos._id %>" class="btn btn-danger mx-5">DELETE</a></li>
+            
+        <% }) %>
+        
+    </ul>
+</div>
+<%- include("./partials/footer") %>
