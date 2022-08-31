@@ -2,19 +2,21 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Users = require("./models/Users")
 const bcrypt = require('bcrypt')
+require("dotenv").config()
 const app = express()
 app.use(express.json())
 
 
-mongoose.connect("mongodb+srv://collins:allion.com123@cluster0.imelere.mongodb.net/?retryWrites=true&w=majority",
+mongoose.connect(process.env.MONGO_STRING,
 {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }
 )
 
-app.get('/users', (req, res) =>{
-    res.json(users)
+app.get('/users', async(req, res) =>{
+    const currentUsers = await Users.find({})
+    res.json(currentUsers)
 })
 app.post('/users/new', async(req,res) => {
     try{
