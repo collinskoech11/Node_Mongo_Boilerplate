@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express()
 const Users = require("./models/Users")
-const bcrypt = require('bcrypt')
 const usersRouter = require("./Views")
 
 require("dotenv").config()

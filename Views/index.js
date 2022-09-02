@@ -1,7 +1,10 @@
 const Router = require("express").Router;
 const router = Router();
 const Users = require("../models/Users")
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 // const router = express().router()
+// require('crypto').randomBytes(64).toString('hex') => gen access token secret 
 
 
 router.get('/users', async(req, res) =>{
@@ -10,7 +13,6 @@ router.get('/users', async(req, res) =>{
 })
 router.post('/users/new', async(req,res) => {
     try{
-        
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
         const user = {
             name: req.body.name,
@@ -40,7 +42,16 @@ router.post('/users/login', async(req, res) => {
             // res.json(userFind)
             try{
                 if(await bcrypt.compare(req.body.password, userFind.password)){
-                    res.send('Success')
+                    const usernameLogged = req.body.name
+                    const serializeUser = {nameme: usernameLogged}
+                    const accessToken = jwt.sign(serializeUser, process.env.ACCESS_TOKEN_SECRET)
+                    // res.send('Success')
+                    res.json(
+                        {
+                            accessToken: accessToken,
+                            message: "Success"
+                        }
+                    )
                 } else {
                     res.send('Authentication denied')
                 }
@@ -52,5 +63,18 @@ router.post('/users/login', async(req, res) => {
         console.log(error)
     }
 })
+
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization']
+    const token  = authHeader && authHeader.split(' ')[1]
+    if(token ==null) return res.sendStatus(401)
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, serializeUser) => {
+        if(err) return res.sendStatus(403)
+        req.user = serializeUser
+        next() // move out of the middleware
+    })
+    // Bearer TOKEN
+}
 
 module.exports = router
