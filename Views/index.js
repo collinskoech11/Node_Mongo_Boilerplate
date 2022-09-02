@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt')
 // const router = express().router()
 // require('crypto').randomBytes(64).toString('hex') => gen access token secret 
 
-let serializeUser;
+// let serializeUser;
 router.get('/users', async(req, res) =>{
     const currentUsers = await Users.find({})
     res.json(currentUsers)
@@ -74,13 +74,16 @@ router.post('/users/login', async(req, res) => {
             try{
                 if(await bcrypt.compare(req.body.password, userFind.password)){
                     const usernameLogged = req.body.name
-                    serializeUser = {nameme: usernameLogged}
+                    const serializeUser = {nameme: usernameLogged}
                     console.log("data wanted",serializeUser)
-                    const accessToken = jwt.sign(serializeUser, process.env.ACCESS_TOKEN_SECRET)
+                    const accessToken = generateAccessToken(serializeUser)// generate an access token using generateAccessToken Function
+                    const refreshToken = jwt.sign(serializeUser, process.env.REFRESH_TOKEN_SECRET)
+                    refreshTokens.push(refreshToken)
                     // res.send('Success')
                     res.json(
                         {
                             accessToken: accessToken,
+                            refreshToken: refreshToken,
                             message: "Success"
                         }
                     )
@@ -96,6 +99,19 @@ router.post('/users/login', async(req, res) => {
     }
 })
 
+let refreshTokens = []
+
+router.post('/token', (req, res) => {
+    const refreshToken = req.body.token
+    if(refreshToken == null) return res.sendStatus(401)
+    if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, serializeUser) =>{
+        if(err) return res.sendStatus(403)
+        const accessToken = generateAccessToken({ name: serializeUser.name})
+        res.json({ accessToken: accessToken })
+    })
+    console.log('token found')
+})
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization']
     const token  = authHeader && authHeader.split(' ')[1]
@@ -107,6 +123,9 @@ function authenticateToken(req, res, next) {
         next() // move out of the middleware
     })
     // Bearer TOKEN
+}
+function generateAccessToken(user){
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s'})// generate an access token when user logs in and pass in an expiration time 
 }
 
 module.exports = router
