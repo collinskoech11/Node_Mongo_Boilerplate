@@ -14,7 +14,7 @@ router.get('/users', async(req, res) =>{
 })
 router.get('/posts',authenticateToken, async(req, res) =>{
     try{
-        const currentPosts = await Posts.find({ author: req.user.nameme })
+        const currentPosts = await Posts.find({ author: req.user.nameme })// filter articles by current logged in user using access token
         res.json(currentPosts)
     } catch(err){
         console.log(err, "err=====")
@@ -125,7 +125,7 @@ function authenticateToken(req, res, next) {
     // Bearer TOKEN
 }
 function generateAccessToken(user){
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s'})// generate an access token when user logs in and pass in an expiration time 
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '35s'})// generate an access token when user logs in and pass in an expiration time 
 }
 
 module.exports = router
