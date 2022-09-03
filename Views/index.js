@@ -99,9 +99,9 @@ router.post('/users/login', async(req, res) => {
     }
 })
 
-let refreshTokens = []
+let refreshTokens = []// => not a good idea to do this in oroduction since itll be reinitialized each time we refresh
 
-router.post('/token', (req, res) => {
+router.post('/token', (req, res) => {// endoint that takes a refresh token and gnerates a new access token 
     const refreshToken = req.body.token
     if(refreshToken == null) return res.sendStatus(401)
     if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
@@ -111,6 +111,10 @@ router.post('/token', (req, res) => {
         res.json({ accessToken: accessToken })
     })
     console.log('token found')
+})
+app.delete('/logout', (req, res) => {
+    refreshTokens = refreshTokens.filter(token => token !== req.body.token)
+    res.sendStatus(204)// => successfully deleted the token 
 })
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization']
