@@ -112,7 +112,7 @@ router.post('/token', (req, res) => {// endoint that takes a refresh token and g
     })
     console.log('token found')
 })
-app.delete('/logout', (req, res) => {
+router.delete('/logout', (req, res) => {
     refreshTokens = refreshTokens.filter(token => token !== req.body.token)
     res.sendStatus(204)// => successfully deleted the token 
 })
