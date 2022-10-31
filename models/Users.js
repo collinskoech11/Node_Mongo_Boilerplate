@@ -5,25 +5,17 @@ const UsersSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    email: {
-        type: String,
-        required: false
-    },
-    password: {
-        type: String,
-        required: false
-    },
     phoneNumber:{
         type: String,
-        required:true
+        required:false
     },
     Age:{
         type:Number,
-        required:true
+        required:false
     },
     country:{
         type: String,
-        required:true
+        required:false
     }
 })
 
